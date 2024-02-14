@@ -5,8 +5,6 @@ const productRouter = require('./routes/product')
 const userRouter = require('./routes/user')
 const jwt = require('jsonwebtoken');
 
-
-
 const { Schema } = mongoose;
 
 require('dotenv').config()
@@ -22,45 +20,33 @@ async function main() {
 
     // use `await mongoose.connect('mongodb://user:password@127.0.0.1:27017/test');` if your database has auth enabled
 }
-server.use((req, res, next) => {
-try {
-    const token = req.get('Authorization').split('Bearer ')[1];
-    console.log(token);
-    var decode = jwt.verify(token, process.env.SECRET);
-    console.log(decode);
-    if (decode.email) {
-        next()
-    } else {
+const auth = ((req, res, next) => {
+    try {
+        const token = req.get('Authorization').split('Bearer ')[1];
+        console.log(token);
+        var decode = jwt.verify(token, process.env.SECRET);
+        console.log(decode);
+        if (decode.email) {
+            next()
+        } else {
+            res.sendStatus(401)
+        }
+    } catch (error) {
         res.sendStatus(401)
+
     }
-} catch (error) {
-    res.sendStatus(401)
-
-}
 });
-
-
-   
-
-
-
 
 server.use(express.urlencoded({ extended: true }));
 
 server.use(express.json());
-
-
-
-
 // server.post('/formdata', productController.createProduct);
 
-
 // server.use(express.json());
-server.use('/products', productRouter.router);
+server.use('/products', auth, productRouter.router);
 server.use('/user', userRouter.router);
 // Initialize Express app
 const PORT = 8080;
-
 
 // Start the server
 server.listen(PORT, () => {
