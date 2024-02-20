@@ -4,6 +4,9 @@ const mongoose = require('mongoose');
 const productRouter = require('./routes/product')
 const userRouter = require('./routes/user')
 const jwt = require('jsonwebtoken');
+const fs = require('fs');
+const publicKey = fs.readFileSync('./public.key', 'utf-8')
+
 
 const { Schema } = mongoose;
 
@@ -24,7 +27,7 @@ const auth = ((req, res, next) => {
     try {
         const token = req.get('Authorization').split('Bearer ')[1];
         console.log(token);
-        var decode = jwt.verify(token, process.env.SECRET);
+        var decode = jwt.verify(token, publicKey);
         console.log(decode);
         if (decode.email) {
             next()
