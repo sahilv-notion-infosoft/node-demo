@@ -6,6 +6,8 @@ const userRouter = require('./routes/user')
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
 const publicKey = fs.readFileSync('./public.key', 'utf-8')
+var multer = require('multer');
+var upload = multer();
 
 
 const { Schema } = mongoose;
@@ -40,12 +42,12 @@ const auth = ((req, res, next) => {
     }
 });
 
-server.use(express.urlencoded({ extended: true }));
-
-server.use(express.json());
+// server.use(express.urlencoded({ extended: true }));
+server.use(upload.array());
+// server.use(express.json());
 // server.post('/formdata', productController.createProduct);
 
-// server.use(express.json());
+server.use(express.json());
 server.use('/products', auth, productRouter.router);
 server.use('/user', userRouter.router);
 // Initialize Express app

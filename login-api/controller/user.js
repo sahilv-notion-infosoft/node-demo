@@ -17,7 +17,7 @@ exports.createUser = async (req, res, next) => {
         // Save the product to the database
         await user.save();
         // Send a success response
-        res.json('Create User Succesfully');
+        res.json(user);
     } catch (error) {
         if (error.name === 'ValidationError') {
             // Construct error object with specific error message
@@ -42,7 +42,7 @@ exports.createUser = async (req, res, next) => {
 
 
 exports.loginUser = async (req, res) => {
-    
+
     try {
 
         const user = await User.findOne({ email: req.body.email });

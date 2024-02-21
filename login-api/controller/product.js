@@ -28,10 +28,45 @@ exports.createProduct = async (req, res, next) => {
 };
 
 
+// exports.getAllProducts = async (req, res) => {
+//     const product = await Product.find();
+//     res.json({data:product});
+// };
+
 exports.getAllProducts = async (req, res) => {
-    const product = await Product.find();
-    res.json({data:product});
+    let { page = 1, limit = 0, sortBy = 'createdAt', sortOrder = 'asc' } = req.body;
+
+    try {
+        let query = Product.find();
+
+        if (limit > 0) {
+            const count = await Product.countDocuments(); // Total count of documents
+
+            query = query.sort({ [sortBy]: sortOrder === 'desc' ? -1 : 1 }) // Apply sorting
+                         .skip((page - 1) * limit) // Skip documents
+                         .limit(limit); // Limit documents per page
+
+            const products = await query;
+
+            res.json({
+                data: products,
+                currentPage: page,
+                totalPages: Math.ceil(count / limit)
+            });
+        } else {
+            const products = await query;
+
+            res.json({
+                data: products
+            });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error' });
+    }
 };
+
+
+
 exports.getProduct = async (req, res, next) => {
     try {
         const id = req.params.id;
